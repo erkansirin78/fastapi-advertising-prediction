@@ -1,0 +1,7 @@
+pandas
+scikit-learn
+joblib
+fastapi[all]
+uvicorn[standard]
+build
+twine
