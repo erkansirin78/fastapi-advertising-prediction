@@ -5,7 +5,7 @@ import uvicorn
 
 # Read models saved during train phase
 estimator_advertising_loaded = joblib.load(
-    "fastapi_advertising_prediction/saved_models/03.randomforest_with_advertising.pkl")
+    "./saved_models/03.randomforest_with_advertising.pkl")
 
 app = FastAPI()
 
