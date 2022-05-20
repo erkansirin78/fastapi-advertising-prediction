@@ -5,3 +5,4 @@ fastapi[all]
 uvicorn[standard]
 build
 twine
+fastapi_advertising_prediction
