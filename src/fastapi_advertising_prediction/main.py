@@ -1,14 +1,15 @@
-from fastapi import FastAPI, Request
+import os
+import pathlib
+from fastapi import FastAPI
 from fastapi_advertising_prediction.schemas import Advertising
 import joblib
-import uvicorn
 
 # Read models saved during train phase
-estimator_advertising_loaded = joblib.load(
-    "./saved_models/03.randomforest_with_advertising.pkl")
+current_dir = pathlib.Path(__file__).parent.resolve()
+dirname = os.path.join(current_dir, 'saved_models')
+estimator_advertising_loaded = joblib.load(os.path.join(dirname,"03.randomforest_with_advertising.pkl"))
 
 app = FastAPI()
-
 
 def make_advertising_prediction(model, request):
     # parse input from request
@@ -24,15 +25,8 @@ def make_advertising_prediction(model, request):
 
     return prediction[0]
 
-
 # Advertising prediction endpoint
 @app.post("/prediction/advertising")
 def predict_iris(request: Advertising):
     prediction = make_advertising_prediction(estimator_advertising_loaded, request.dict())
     return {"result": prediction}
-
-
-if __name__ == "__main__":
-    uvicorn.run("main:app", host="0.0.0.0", port=8000, reload=True,
-                log_level="debug", debug=True,
-                workers=4, limit_concurrency=10, limit_max_requests=10)

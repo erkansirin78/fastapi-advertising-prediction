@@ -1,13 +1,22 @@
-## Packaging
+## 1. Packaging
 Python is dynamically typed and non-compiled language. Python requires that the
 environment you run in has an appropriate Python interpreter and the ability to install the
 libraries and packages you need.
+- Example: https://packaging.python.org/en/latest/tutorials/packaging-projects/
 
-## Create a github repo
+## 2. Create a GitHub repo
 https://github.com/erkansirin78/fastapi-advertising-prediction.git
 
+## 3. Activate conda environment
+```commandline
+conda activate fastapi
+```
 
-## Add setup.cfg
+## 4. Install packaging related packages
+```commandline
+pip install -r requirements
+```
+## 5. Add setup.cfg
 ```commandline
 [metadata]
 name = fastapi_advertising_prediction
@@ -28,8 +37,9 @@ packages = find:
 python_requires = >=3.7
 include_package_data = True
 ```
+- If you update, change version.
 
-## Add pyproject.toml 
+## 6. Add pyproject.toml 
 ```commandline
 [build-system]
 requires = [
@@ -38,13 +48,15 @@ requires = [
 ]
 build-backend = "setuptools.build_meta"
 ```
-## Add a license
+- Wheels are a component of the Python ecosystem that helps to make package installs just work. They allow for faster installations and more stability in the package distribution process.
+- https://realpython.com/python-wheels/#what-is-a-python-wheel
+
+## 7. Add a license
+- Create LICENCE file
 - Visit https://choosealicense.com/ and pick-up that suits your need.
 
-## Build
+## 8. Build
 ```commandline
-pip install build
-
 python -m build
 ```
 - Build will create new files
@@ -82,21 +94,20 @@ python -m build
 
 - Check dist folder
 ```commandline
- tree dist/
+tree dist/
+
+
 dist/
 ├── fastapi_advertising_prediction-0.0.1-py3-none-any.whl
 └── fastapi_advertising_prediction-0.0.1.tar.gz
 ```
 
-## Create an account on test.pypi.org
-- Before pypi one we upload test.pypi to see everything is good.
+## 9. Create an account on test.pypi.org
+- Before sending packages to pypi, first we upload test.pypi to see everything is all right.
 
-## Install twine
-` pip install twine `  
-
-## Upload package with twine
+## 10. Upload package with twine
 ```commandline
-twine upload --repository testpypi dist/* --verbose
+twine upload --repository testpypi --skip-existing dist/* --verbose
 ```
 - Expected output
 ```commandline
@@ -127,19 +138,31 @@ https://test.pypi.org/project/fastapi-advertising-prediction/0.0.1/
 
 - Visit page: https://test.pypi.org/project/fastapi-advertising-prediction/0.0.1/
 
-## Install from test.pypi.org
+## 11. Install from test.pypi.org
 ```commandline
 pip install -i https://test.pypi.org/simple/ fastapi-advertising-prediction==0.0.1
 ```
-
-## Enter python shell
-`  python `
-
-## Test package
+- Ignore following error and try again.
 ```commandline
->>> from fastapi_advertising_prediction import train
->>> train.read_and_train()
+ERROR: No matching distribution found for fastapi-advertising-prediction==0.0.1
 ```
+## 12. Test package
+- Create test directory
+```commandline
+mkdir /tmp/fasttest
+cd /tmp/fasttest
+```
+- Create a module for training and saving model.
+```commandline
+cat <<EOF > train_run.py
+from fastapi_advertising_prediction import train
+
+if __name__=='__main__':
+    train.read_and_train()
+EOF
+```
+- Run: ` python train_run.py`  
+
 - Expected output
 ```commandline
    ID     TV  Radio  Newspaper  Sales
@@ -160,15 +183,42 @@ pip install -i https://test.pypi.org/simple/ fastapi-advertising-prediction==0.0
 4    12.9
 5     7.2
 Name: Sales, dtype: float64
-R2:
+R2: 0.9825966330409427
+current_dir: /home/train/miniconda3/envs/fastapi/lib/python3.8/site-packages/fastapi_advertising_prediction
+FileExistsError: File exists.
+/home/train/miniconda3/envs/fastapi/lib/python3.8/site-packages/fastapi_advertising_prediction/saved_models
 X_manual_test [[230.1, 37.8, 69.2]]
-prediction [22.0715]
+prediction [21.986]
 ```
 
-## Update package
+## 13. Run uvicorn
+-  create a module 
 ```commandline
+cat<<EOF > main.py
+from fastapi_advertising_prediction import main
+import uvicorn
+
+app = main.app
+
+if __name__ == "__main__":
+   uvicorn.run("main:app", host="0.0.0.0", port=8000, reload=True,
+                log_level="debug", debug=True,
+                workers=4, limit_concurrency=10, limit_max_requests=10)
+EOF
+```
+- Run:  ` python main.py `  
+
+- Open browser: http://localhost:8000/docs  
+
+- Test API
+
+## 14. Update package
+```commandline
+# Uninstall
+pip uninstall fastapi-advertising-prediction
+
 # Delete all files in the dist folder.
- rm -rf dist/
+rm -rf dist/
  
 # Update the version number in the setup.cfg file.
 
@@ -179,13 +229,14 @@ python -m build
 twine upload --repository testpypi dist/* --verbose
 ```
 
-## Install new version
+## 15. Install new version
 ```commandline
 pip install -i https://test.pypi.org/simple/ fastapi-advertising-prediction==0.0.2
 ```
 
-## Run
-```commandline
- python fastapi_advertising_prediction/main.py
-```
+## 16. Create an account on pypi
 
+## 17. Upload to pypi
+```commandline
+twine upload --repository pypi dist/* --verbose
+```
