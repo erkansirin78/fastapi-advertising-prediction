@@ -1,7 +1,7 @@
 import os
 import pathlib
 from fastapi import FastAPI
-from fastapi_advertising_prediction.schemas import Advertising
+from schemas import Advertising
 import joblib
 
 # Read models saved during train phase
